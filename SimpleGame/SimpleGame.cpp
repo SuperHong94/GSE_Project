@@ -12,25 +12,23 @@ but WITHOUT ANY WARRANTY.
 #include <iostream>
 #include "Dependencies\glew.h"
 #include "Dependencies\freeglut.h"
+#include "GSEGame.h"
 
-#include "Renderer.h"
-
-Renderer *g_Renderer = NULL;
+GSEGame* g_game = NULL;
 int g_prevTimeInMillisecond = 0;
 
+int X= 0;
+int Y = 0;
 void RenderScene(int temp)
 {
 	int currentTime = glutGet(GLUT_ELAPSED_TIME);
 	int elapsedTime = currentTime-g_prevTimeInMillisecond;
 	g_prevTimeInMillisecond = currentTime;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
+	g_game->RenderScene();
 
-	// Renderer Test
-	g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
+	glutSwapBuffers(); //double buffering, front->back, back front 
 
-	glutSwapBuffers();
 	glutTimerFunc(16, RenderScene, 16);
 }
 
@@ -44,6 +42,10 @@ void MouseInput(int button, int state, int x, int y)
 
 void KeyDownInput(unsigned char key, int x, int y)
 {
+	if (key == 'a') X--;
+	if (key == 'd') X++;
+	if (key == 'w') Y++;
+	if (key == 's') Y--;
 }
 
 void KeyUpInput(unsigned char key, int x, int y)
@@ -77,13 +79,9 @@ int main(int argc, char **argv)
 		std::cout << "GLEW 3.0 not supported\n ";
 	}
 
-	// Initialize Renderer
-	g_Renderer = new Renderer(500, 500);//창의크기(윜도우 창크기랑 같아야함
-	if (!g_Renderer->IsInitialized())
-	{
-		std::cout << "Renderer could not be initialized.. \n";
-	}
+	// Initialize GSEGame
 
+	g_game = new GSEGame();
 	glutDisplayFunc(Idle); //렌더링 루프에서 디스플레이 업데이트
 	glutIdleFunc(Idle); //Idle상태
 	glutKeyboardFunc(KeyDownInput);
@@ -98,8 +96,7 @@ int main(int argc, char **argv)
 
 	glutMainLoop(); //escape 키 또는 창닫을때 루프 빠져나옴
 
-	delete g_Renderer;
-
+	delete g_game;
     return 0;
 }
 
